@@ -3,11 +3,14 @@ import os
 import responder
 
 from responder_login import LoginManager, UserMixin
+try:
+    import sqlalchemy
+except ImportError:
+    os.system("pip install SQLAlchemy")
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm.session import sessionmaker
 import sqlalchemy.ext.declarative
 
-os.system("pip install SQLAlchemy")
 
 api = responder.API()
 lm = LoginManager(api)

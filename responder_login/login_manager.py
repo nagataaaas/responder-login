@@ -57,6 +57,12 @@ class LoginManager:
         #: this will used when self._authorized_callback is not set.
         self.login_prohibited_view = LOGIN_PROHIBITED_VIEW
 
+        #: The default message to display when users need to log in.
+        self.login_required_message = LOGIN_REQUIRED_MESSAGE
+
+        #: The default message to display when users need to log out.
+        self.login_prohibited_message = LOGIN_PROHIBITED_MESSAGE
+
         #: Disable displaying RuntimeWarning if DISABLE_RUNTIME_WARNING in config.
         if DISABLE_RUNTIME_WARNING:
             warnings.filterwarnings(action="ignore", message="coroutine\s.+\swas\snever\sawaited",
@@ -69,11 +75,13 @@ class LoginManager:
         self._user_callback = None
 
         if api:
-            self._init_app(api)
+            self.init_api(api)
             self._api = api
+            api.login_manager = self
 
-    def _init_app(self, app):
-        app.login_manager = self
+    def init_api(self, api):
+        api.login_manager = self
+        self._api = api
 
     def _unauthorized(self, *args, **kwargs):
         """
@@ -85,7 +93,7 @@ class LoginManager:
         if self.login_required_view:
             _, resp = args
             self._api.redirect(resp, self.login_required_view)
-        return UNAUTHORIZED(*args, **kwargs)
+        return UNAUTHORIZED(*args, **kwargs, message=self.login_required_message, view=self.login_required_message)
 
     def _authorized(self, *args, **kwargs):
         """
@@ -97,7 +105,7 @@ class LoginManager:
         if self.login_prohibited_view:
             _, resp = args
             self._api.redirect(resp, self.login_prohibited_view)
-        return AUTHORIZED(*args, **kwargs)
+        return AUTHORIZED(*args, **kwargs, message=self.login_prohibited_message, view=self.login_prohibited_message)
 
     def _unauthorized_handler(self, callback):
         self._unauthorized_callback = callback
@@ -193,7 +201,7 @@ class LoginManager:
 
     def logout_user(self):
         req, resp = get_data_from_stack()
-        self._set_cookie("", "ACCOUNT", resp)
+        self._set_cookie("", "ACCOUNT", resp, delete=True)
 
     @property
     def current_user(self):
@@ -206,7 +214,7 @@ class LoginManager:
             return None
 
     @staticmethod
-    def _set_cookie(cookie, cookie_type, resp):
+    def _set_cookie(cookie, cookie_type, resp, delete=False):
         assert cookie_type in COOKIE_NAME, "cookie_type must be a key of COOKIE_NAME"
 
         key = COOKIE_NAME[cookie_type]
@@ -216,6 +224,8 @@ class LoginManager:
             max_age = COOKIE_DURATION.total_seconds()
         else:
             expires, max_age = None, None
+        if delete:
+            expires, max_age = 0, 0
         secure = COOKIE_SECURE
         httponly = COOKIE_HTTPONLY
         resp.set_cookie(key=key, value=value, expires=expires,
