@@ -1,0 +1,27 @@
+Metadata-Version: 1.1
+Name: Responder-Login
+Version: 0.0.1
+Summary: User session management for Responder
+Home-page: UNKNOWN
+Author: Yamato Nagata
+Author-email: chickenwingswillfly@gmail.com
+License: MIT
+Description: 
+        Responder-Login
+        -----------
+        Responder-Login is a simple Login/Logout management.
+        The basic structure of this is based on Flask-Login
+        
+Platform: any
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
