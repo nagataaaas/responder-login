@@ -1,4 +1,7 @@
 .idea
 .pypirc
 build
-Reponder_Login.egg-info
+Responder_Login.egg-info
+example/static
+example/templates
+example/database.db

@@ -26,7 +26,7 @@ class Student(Base, UserMixin):
     password = sqlalchemy.Column(sqlalchemy.String(20))
 
     def get_id(self):
-        return self.id
+        return str(self.id)
 
 
 engine = sqlalchemy.create_engine(url, echo=False)
@@ -44,7 +44,7 @@ def user_loader(_id):
 @lm.login_required
 def show(req, resp):
     user = lm.current_user
-    resp.text = f"your are logging in as {user.name}, {user.grade}th grader"
+    resp.text = f"your are logging in as {user.name}, {user.grade}th grader; fresh: {lm.is_fresh}"
 
 
 @api.route("/signup")

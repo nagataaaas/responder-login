@@ -27,13 +27,13 @@ COOKIE_HTTPONLY = False
 LOGIN_REQUIRED_MESSAGE = "Please log in to access this page."
 
 #: view to redirect when users need to log in.
-LOGIN_REQUIRED_VIEW = None
+LOGIN_REQUIRED_ROUTE = None
 
 #: The default message to display when users need to log out.
 LOGIN_PROHIBITED_MESSAGE = "Please log out to access this page."
 
 #: view to redirect when users need to log out.
-LOGIN_PROHIBITED_VIEW = None
+LOGIN_PROHIBITED_ROUTE = None
 
 #: Decorating coroutine with async will give RuntimeError
 #: So this is whether disable RuntimeError or not; Defaults to -- True --

@@ -9,8 +9,8 @@ from pprint import pprint
 
 from .mixins import AnonymousUserMixin
 from .config import (COOKIE_NAME, COOKIE_REMEMBER_ME, COOKIE_DURATION,
-                     COOKIE_SECURE, COOKIE_HTTPONLY, LOGIN_REQUIRED_MESSAGE, LOGIN_REQUIRED_VIEW,
-                     LOGIN_PROHIBITED_MESSAGE, LOGIN_PROHIBITED_VIEW, DISABLE_RUNTIME_WARNING)
+                     COOKIE_SECURE, COOKIE_HTTPONLY, LOGIN_REQUIRED_MESSAGE, LOGIN_REQUIRED_ROUTE,
+                     LOGIN_PROHIBITED_MESSAGE, LOGIN_PROHIBITED_ROUTE, DISABLE_RUNTIME_WARNING)
 
 from .default_callbacks import (UNAUTHORIZED, AUTHORIZED)
 
@@ -51,11 +51,11 @@ class LoginManager:
 
         #: redirect to this view when users need to log in.
         #: this will used when self._unauthorized_callback is not set.
-        self.login_required_view = LOGIN_REQUIRED_VIEW
+        self.LOGIN_REQUIRED_ROUTE = LOGIN_REQUIRED_ROUTE
 
         #: redirect to this view when users need to log out.
         #: this will used when self._authorized_callback is not set.
-        self.login_prohibited_view = LOGIN_PROHIBITED_VIEW
+        self.LOGIN_PROHIBITED_ROUTE = LOGIN_PROHIBITED_ROUTE
 
         #: Disable displaying RuntimeWarning if DISABLE_RUNTIME_WARNING in config.
         if DISABLE_RUNTIME_WARNING:
@@ -82,9 +82,9 @@ class LoginManager:
         """
         if self._unauthorized_callback:
             return self._unauthorized_callback(*args, **kwargs)
-        if self.login_required_view:
+        if self.LOGIN_REQUIRED_ROUTE:
             _, resp = args
-            self._api.redirect(resp, self.login_required_view)
+            self._api.redirect(resp, self.LOGIN_REQUIRED_ROUTE)
         return UNAUTHORIZED(*args, **kwargs)
 
     def _authorized(self, *args, **kwargs):
@@ -94,9 +94,9 @@ class LoginManager:
         """
         if self._authorized_callback:
             return self._authorized_callback(*args, **kwargs)
-        if self.login_prohibited_view:
+        if self.LOGIN_PROHIBITED_ROUTE:
             _, resp = args
-            self._api.redirect(resp, self.login_prohibited_view)
+            self._api.redirect(resp, self.LOGIN_PROHIBITED_ROUTE)
         return AUTHORIZED(*args, **kwargs)
 
     def _unauthorized_handler(self, callback):

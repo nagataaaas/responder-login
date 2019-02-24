@@ -5,12 +5,11 @@ import datetime
 
 from functools import wraps
 
-from pprint import pprint
 
 from .mixins import AnonymousUserMixin
 from .config import (COOKIE_NAME, COOKIE_REMEMBER_ME, COOKIE_DURATION,
-                     COOKIE_SECURE, COOKIE_HTTPONLY, LOGIN_REQUIRED_MESSAGE, LOGIN_REQUIRED_VIEW,
-                     LOGIN_PROHIBITED_MESSAGE, LOGIN_PROHIBITED_VIEW, DISABLE_RUNTIME_WARNING)
+                     COOKIE_SECURE, COOKIE_HTTPONLY, LOGIN_REQUIRED_MESSAGE, LOGIN_REQUIRED_ROUTE,
+                     LOGIN_PROHIBITED_MESSAGE, LOGIN_PROHIBITED_ROUTE, DISABLE_RUNTIME_WARNING)
 
 from .default_callbacks import (UNAUTHORIZED, AUTHORIZED)
 
@@ -49,20 +48,6 @@ class LoginManager:
         #: If no user is logged in, This will be used.
         self.anonymous_user = AnonymousUserMixin()
 
-        #: redirect to this view when users need to log in.
-        #: this will used when self._unauthorized_callback is not set.
-        self.login_required_view = LOGIN_REQUIRED_VIEW
-
-        #: redirect to this view when users need to log out.
-        #: this will used when self._authorized_callback is not set.
-        self.login_prohibited_view = LOGIN_PROHIBITED_VIEW
-
-        #: The default message to display when users need to log in.
-        self.login_required_message = LOGIN_REQUIRED_MESSAGE
-
-        #: The default message to display when users need to log out.
-        self.login_prohibited_message = LOGIN_PROHIBITED_MESSAGE
-
         #: Disable displaying RuntimeWarning if DISABLE_RUNTIME_WARNING in config.
         if DISABLE_RUNTIME_WARNING:
             warnings.filterwarnings(action="ignore", message="coroutine\s.+\swas\snever\sawaited",
@@ -74,10 +59,21 @@ class LoginManager:
 
         self._user_callback = None
 
+        self._api = None
+
+        self.config = {"COOKIE_NAME": COOKIE_NAME,
+                       "COOKIE_REMEMBER_ME": COOKIE_REMEMBER_ME,
+                       "COOKIE_DURATION": COOKIE_DURATION,
+                       "COOKIE_SECURE": COOKIE_SECURE,
+                       "COOKIE_HTTPONLY": COOKIE_HTTPONLY,
+                       "LOGIN_REQUIRED_ROUTE": LOGIN_REQUIRED_ROUTE,
+                       "LOGIN_REQUIRED_MESSAGE": LOGIN_REQUIRED_MESSAGE,
+                       "LOGIN_PROHIBITED_ROUTE": LOGIN_PROHIBITED_ROUTE,
+                       "LOGIN_PROHIBITED_MESSAGE": LOGIN_PROHIBITED_MESSAGE
+                       }
+
         if api:
             self.init_api(api)
-            self._api = api
-            api.login_manager = self
 
     def init_api(self, api):
         api.login_manager = self
@@ -90,10 +86,10 @@ class LoginManager:
         """
         if self._unauthorized_callback:
             return self._unauthorized_callback(*args, **kwargs)
-        if self.login_required_view:
+        if self.config["LOGIN_REQUIRED_ROUTE"]:
             _, resp = args
-            self._api.redirect(resp, self.login_required_view)
-        return UNAUTHORIZED(*args, **kwargs, message=self.login_required_message, view=self.login_required_message)
+            self._api.redirect(resp, self.config["LOGIN_REQUIRED_ROUTE"])
+        return UNAUTHORIZED(*args, **kwargs, message=self.config["LOGIN_REQUIRED_MESSAGE"])
 
     def _authorized(self, *args, **kwargs):
         """
@@ -102,12 +98,12 @@ class LoginManager:
         """
         if self._authorized_callback:
             return self._authorized_callback(*args, **kwargs)
-        if self.login_prohibited_view:
+        if self.config["LOGIN_PROHIBITED_ROUTE"]:
             _, resp = args
-            self._api.redirect(resp, self.login_prohibited_view)
-        return AUTHORIZED(*args, **kwargs, message=self.login_prohibited_message, view=self.login_prohibited_message)
+            self._api.redirect(resp, self.config["LOGIN_PROHIBITED_ROUTE"])
+        return AUTHORIZED(*args, **kwargs, message=self.config["LOGIN_PROHIBITED_MESSAGE"])
 
-    def _unauthorized_handler(self, callback):
+    def unauthorized_handler(self, callback):
         self._unauthorized_callback = callback
 
         @wraps(callback)
@@ -116,7 +112,7 @@ class LoginManager:
 
         return _unauthorized_handler_wrap
 
-    def _authorized_handler(self, callback):
+    def authorized_handler(self, callback):
         self._authorized_callback = callback
 
         @wraps(callback)
@@ -187,41 +183,53 @@ class LoginManager:
         return _user_loader_wrap
 
     def _load_user(self, req, resp):
+        if not self._user_callback:
+            raise UnboundLocalError("Please set LoginManager._user_callback")
         try:
             account_cookie = req.cookies.get(COOKIE_NAME["ACCOUNT"])
             user = self._user_callback(account_cookie)
             return user if user else self.anonymous_user
         except (AttributeError, TypeError):
-            return None
+            return self.anonymous_user
 
     def login_user(self, account):
         req, resp = get_data_from_stack()
         account_id = account.get_id()
         self._set_cookie(account_id, "ACCOUNT", resp)
+        self._set_cookie("1", "IS_FRESH", resp)
 
     def logout_user(self):
         req, resp = get_data_from_stack()
         self._set_cookie("", "ACCOUNT", resp, delete=True)
+        self._set_cookie("", "IS_FRESH", resp, delete=True)
+
+    @property
+    def is_fresh(self):
+        try:
+            req, resp = get_data_from_stack()
+            is_fresh = req.cookies.get(COOKIE_NAME["IS_FRESH"])
+            if is_fresh:
+                return True
+        except Exception:
+            pass
+        return False
 
     @property
     def current_user(self):
         req, resp = get_data_from_stack()
-        print(req, resp)
         try:
-            account_cookie = req.cookies.get(COOKIE_NAME["ACCOUNT"])
-            return self._user_callback(account_cookie)
+            return self._load_user(req, resp)
         except (AttributeError, TypeError):
-            return None
+            return self.anonymous_user
 
-    @staticmethod
-    def _set_cookie(cookie, cookie_type, resp, delete=False):
-        assert cookie_type in COOKIE_NAME, "cookie_type must be a key of COOKIE_NAME"
+    def _set_cookie(self, cookie, cookie_type, resp, delete=False):
+        assert cookie_type in self.config["COOKIE_NAME"], "cookie_type must be a key of COOKIE_NAME"
 
-        key = COOKIE_NAME[cookie_type]
+        key = self.config["COOKIE_NAME"][cookie_type]
         value = cookie
-        if COOKIE_REMEMBER_ME:
-            expires = datetime.datetime.now() + COOKIE_DURATION
-            max_age = COOKIE_DURATION.total_seconds()
+        if self.config["COOKIE_REMEMBER_ME"][cookie_type]:
+            expires = datetime.datetime.now() + self.config["COOKIE_DURATION"]
+            max_age = self.config["COOKIE_DURATION"].total_seconds()
         else:
             expires, max_age = None, None
         if delete:

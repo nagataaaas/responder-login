@@ -9,11 +9,10 @@
 
 from .__about__ import __version__
 from .config import (COOKIE_NAME, COOKIE_REMEMBER_ME, COOKIE_DURATION,
-                     COOKIE_SECURE, COOKIE_HTTPONLY, LOGIN_REQUIRED_MESSAGE, LOGIN_REQUIRED_VIEW,
-                     LOGIN_PROHIBITED_MESSAGE, LOGIN_PROHIBITED_VIEW, DISABLE_RUNTIME_WARNING)
+                     COOKIE_SECURE, COOKIE_HTTPONLY, LOGIN_REQUIRED_MESSAGE, LOGIN_REQUIRED_ROUTE,
+                     LOGIN_PROHIBITED_MESSAGE, LOGIN_PROHIBITED_ROUTE, DISABLE_RUNTIME_WARNING)
 from .login_manager import LoginManager
 from .mixins import (UserMixin, AnonymousUserMixin)
-from .default_callbacks import (AUTHORIZED, UNAUTHORIZED)
 
 
 __all__ = [
@@ -27,14 +26,11 @@ __all__ = [
     "COOKIE_SECURE",
     "COOKIE_HTTPONLY",
     "LOGIN_REQUIRED_MESSAGE",
-    "LOGIN_REQUIRED_VIEW",
+    "LOGIN_REQUIRED_ROUTE",
     "LOGIN_PROHIBITED_MESSAGE",
-    "LOGIN_PROHIBITED_VIEW",
-    "DISABLE_RUNTIME_WARNING",
+    "LOGIN_PROHIBITED_ROUTE",
     "LoginManager",
     "UserMixin",
     "AnonymousUserMixin",
-    "AUTHORIZED",
-    "UNAUTHORIZED"
 
 ]
