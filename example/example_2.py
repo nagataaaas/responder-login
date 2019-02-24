@@ -17,7 +17,6 @@ class User(UserMixin):
         self.name = name
         self.age = age
         users.append(self)
-        print(users)
         self.id = users.index(self)
 
     def get_id(self):
@@ -25,7 +24,6 @@ class User(UserMixin):
 
 @lm.user_loader
 def user_loader(user_id):
-    print(users)
     try:
         return users[int(user_id)]
     except IndexError:
