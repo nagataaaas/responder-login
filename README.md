@@ -13,7 +13,10 @@ def login_required(req, resp):
     resp.text = "You can't see this without logging in!"
 ```
 Powered by [Yamato Nagata](https://twitter.com/514YJ)
+
 [Simple Example](https://github.com/delta114514/responder-login/blob/master/example/example.py)
+
+[ReadTheDocs](https://responder-login.readthedocs.io/en/latest/)
 
 The basic idea is based on [Flask-Login](https://github.com/maxcountryman/flask-login)
 
