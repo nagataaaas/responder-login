@@ -126,7 +126,7 @@ for example.
             name: {user.name},
             age: {user.age}"""
 
-and then, :code:`LoginManager.logout_user` to log out.
+and then, :code:`LoginManager.logout_user()` to log out.
 like this
 
 .. code:: python
@@ -214,7 +214,7 @@ about account data, each value is below:
 * secure : :code:`LoginManager.config["COOKIE_SECURE"]` Defaults to :code:`False`
 * httponly : :code:`LoginManager.config["COOKIE_HTTPONLY"]` Defaults to :code:`False`
 
-`LoginManager.logout_user`
+`LoginManager.logout_user()`
 --------------------------
 This log users out by setting cookie that :code:`expires` and :code:`max_age` are :code:`0`
 

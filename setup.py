@@ -16,7 +16,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(name=about["__title__"],
       version=about["__version__"],
-#      url=about["__url__"],
+      url=about["__url__"],
       license=about["__license__"],
       author=about["__author__"],
       author_email=about["__author_email__"],

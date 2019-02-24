@@ -126,7 +126,7 @@ about account data, each value is below:
  _ _httponly_ : `LoginManager.config["COOKIE_HTTPONLY"]` Defaults to `False`
  
  
- ### LoginManager.logout_user
+ ### LoginManager.logout_user()
  This log users out by setting cookie that `expires` and `max_age` are `0` 
  
  ### LoginManager.current_user

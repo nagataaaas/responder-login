@@ -1,8 +1,8 @@
 Metadata-Version: 1.1
 Name: Responder-Login
-Version: 0.0.1
+Version: 0.0.2
 Summary: User session management for Responder
-Home-page: UNKNOWN
+Home-page: https://github.com/delta114514/responder-login
 Author: Yamato Nagata
 Author-email: chickenwingswillfly@gmail.com
 License: MIT
