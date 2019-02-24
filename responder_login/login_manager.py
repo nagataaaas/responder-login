@@ -182,7 +182,7 @@ class LoginManager:
 
         return _user_loader_wrap
 
-    def _load_user(self, req, resp):
+    def _load_user(self, req, resp, *_, **__):
         if not self._user_callback:
             raise UnboundLocalError("Please set LoginManager._user_callback")
         try:
