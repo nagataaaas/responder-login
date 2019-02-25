@@ -14,7 +14,7 @@ def login_required(req, resp):
 ```
 Powered by [Yamato Nagata](https://twitter.com/514YJ)
 
-[Simple Example](https://github.com/delta114514/responder-login/blob/master/example/example.py)
+[Simple Example](https://github.com/delta114514/responder-login/blob/master/example/example_2.py)
 
 [ReadTheDocs](https://responder-login.readthedocs.io/en/latest/)
 

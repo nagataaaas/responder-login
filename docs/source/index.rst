@@ -17,7 +17,7 @@ The Simple Login/Logout Management for Responder
 Powered by `Yamato Nagata <https://twitter.com/514YJ>`_.
 Responder-Login provides simple user session management.
 `Github <https://github.com/delta114514/responder-login>`_ -- 
-`Simple example <https://github.com/delta114514/responder-login/blob/master/example/example.py>`_
+`Simple example <https://github.com/delta114514/responder-login/blob/master/example/example_2.py>`_
 
 
 The basic idea is based on `Flask-Login <https://github.com/maxcountryman/flask-login>`_
