@@ -175,6 +175,7 @@ class LoginManager:
         """
 
         self._user_callback = callback
+        self._api.jinja_values_base['current_user'] = self.current_user
 
         @wraps(callback)
         def _user_loader_wrap(*args, **kwargs):
