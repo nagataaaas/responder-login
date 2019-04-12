@@ -77,6 +77,7 @@ class LoginManager:
 
     def init_api(self, api):
         api.login_manager = self
+        api.jinja_values_base['current_user'] = self.current_user
         self._api = api
 
     def _unauthorized(self, *args, **kwargs):
