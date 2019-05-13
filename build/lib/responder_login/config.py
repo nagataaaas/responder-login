@@ -7,15 +7,17 @@
 import datetime
 
 #: The name of cookie which stores the data. Do not change key values
-COOKIE_NAME = {"ACCOUNT": "account"
+COOKIE_NAME = {"ACCOUNT": "account",
+               "IS_FRESH": "fresh"
                }
 
 #: Whether the app uses "Remember-Me".
-COOKIE_REMEMBER_ME = {COOKIE_NAME["ACCOUNT"]: True
+COOKIE_REMEMBER_ME = {"ACCOUNT": True,
+                      "IS_FRESH": False
                       }
 
 #: The default time before the "Remember-Me" cookie expires; Defaults to -- datetime.timedelta(365) --
-COOKIE_DURATION = datetime.timedelta(365)
+COOKIE_DURATION = datetime.timedelta(60)
 
 #: Whether the "Remember-Me" cookie requires Secure; Defaults to -- False --
 COOKIE_SECURE = False

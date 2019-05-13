@@ -13,7 +13,6 @@ from .config import (COOKIE_NAME, COOKIE_REMEMBER_ME, COOKIE_DURATION,
                      LOGIN_PROHIBITED_MESSAGE, LOGIN_PROHIBITED_ROUTE, DISABLE_RUNTIME_WARNING)
 from .login_manager import LoginManager
 from .mixins import (UserMixin, AnonymousUserMixin)
-from .default_callbacks import (AUTHORIZED, UNAUTHORIZED)
 
 
 __all__ = [
@@ -30,11 +29,8 @@ __all__ = [
     "LOGIN_REQUIRED_ROUTE",
     "LOGIN_PROHIBITED_MESSAGE",
     "LOGIN_PROHIBITED_ROUTE",
-    "DISABLE_RUNTIME_WARNING",
     "LoginManager",
     "UserMixin",
     "AnonymousUserMixin",
-    "AUTHORIZED",
-    "UNAUTHORIZED"
 
 ]

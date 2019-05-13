@@ -8,19 +8,16 @@ users = []
 
 
 class User(UserMixin):
-    id = None
-    name = "Anonymous"
-    age = 0
-
     def __init__(self, name, age):
         global users
         self.name = name
         self.age = age
+        self.id = len(users)
         users.append(self)
-        self.id = users.index(self)
 
     def get_id(self):
         return self.id
+
 
 @lm.user_loader
 def user_loader(user_id):
