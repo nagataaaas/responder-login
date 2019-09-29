@@ -88,7 +88,7 @@ class LoginManager:
             return self._unauthorized_callback(*args, **kwargs)
         if self.config["LOGIN_REQUIRED_ROUTE"]:
             _, resp = args
-            return self._api.redirect(resp, self.config["LOGIN_REQUIRED_ROUTE"])
+            return self._api.redirect(resp, self.config["LOGIN_REQUIRED_ROUTE"], status_code=307)
         return UNAUTHORIZED(*args, **kwargs, message=self.config["LOGIN_REQUIRED_MESSAGE"])
 
     def _authorized(self, *args, **kwargs):
@@ -100,7 +100,7 @@ class LoginManager:
             return self._authorized_callback(*args, **kwargs)
         if self.config["LOGIN_PROHIBITED_ROUTE"]:
             _, resp = args
-            return self._api.redirect(resp, self.config["LOGIN_PROHIBITED_ROUTE"])
+            return self._api.redirect(resp, self.config["LOGIN_PROHIBITED_ROUTE"], status_code=307)
         return AUTHORIZED(*args, **kwargs, message=self.config["LOGIN_PROHIBITED_MESSAGE"])
 
     def unauthorized_handler(self, callback):

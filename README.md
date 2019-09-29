@@ -83,25 +83,38 @@ The simple example is [Here](https://github.com/delta114514/responder-login/blob
 # Documentation
 
 ### LoginManager(api=None)
-Initialize `LoginManager`.`api` must be an instance of `Responder.API`. `api` can be None or not provided. But, you have to `LoginManager.init_api()`
+Initialize `LoginManager`.`api` must be an instance of `Responder.API`.
+
+`api` can be None or not provided. But, then you have to execute `LoginManager.init_api()`
 
 ### LoginManager.init_api(api)
-Set `Responder.API` with given `api`.
+Set `Responder.API` with given `api`. This will set `current_user` to `jinja2` environment variable.
 
 ### @LoginManager.user_loader
-This decorates callback to set it `LoginManager._user_callback`
+This decorates callback to set it `LoginManager._user_callback`.
+
 callback must take one argument and return instance of User object or `None`.
 
 ### @LoginManager.login_required
 The decorator which decorates `Responder.route` callback.
-If user want to access decorated route but he/her must log in, this will call `LoginManager._unauthorized_callback` if it's provided. That can be set by decorating callback with `LoginManager.unauthorized_handler` which takes `Request` and `Response`. If `LoginManager._unauthorized_callback` isn't provided, this will redirect to `LoginManager.config["LOGIN_REQUIRED_ROUTE"]` if it's set. If not, return `LoginManager.config["LOGIN_REQUIRED_MESSAGE"]` 
+
+If user want to access decorated route but user must log in, this will call `LoginManager._unauthorized_callback` if it's provided.
+
+That can be set by decorating callback with `LoginManager.unauthorized_handler` which takes `Request` and `Response`. If `LoginManager._unauthorized_callback` isn't provided, this will redirect to `LoginManager.config["LOGIN_REQUIRED_ROUTE"]` and HTTP Status Code will be set to `307` if it's set.
+ 
+ If not, set `LoginManager.config["LOGIN_REQUIRED_MESSAGE"]` to `resp.text`. 
 
 ### @LoginManager.unauthorized_handler
 This decorates callback to set it `LoginManager._unauthorized_callback`
 
 ### @LoginManager.login_prohibited
 The decorator which decorates `Responder.route` callback.
-If user want to access decorated route but he/her must log out, this will call `LoginManager._authorized_callback` if it's provided. That can be set by decorating callback with `LoginManager.authorized_handler` which takes `Request` and `Response`. If `LoginManager._authorized_callback` isn't provided, this will redirect to `LoginManager.config["LOGIN_PROHIBITED_ROUTE"]` if it's set. If not, return `LoginManager.config["LOGIN_PROHIBITED_MESSAGE"]` 
+
+If user want to access decorated route but he/her must log out, this will call `LoginManager._authorized_callback` if it's provided.
+
+That can be set by decorating callback with `LoginManager.authorized_handler` which takes `Request` and `Response`. If `LoginManager._authorized_callback` isn't provided, this will redirect to `LoginManager.config["LOGIN_PROHIBITED_ROUTE"]` and HTTP Status Code will be set to `307` if it's set.
+
+If not, set `LoginManager.config["LOGIN_PROHIBITED_MESSAGE"]` to `resp.text`.
 
 ### @LoginManager.authorized_handler
 This decorates callback to set it `LoginManager._authorized_callback`
@@ -152,52 +165,84 @@ about account data, each value is below:
 ### UserMixin
 The simple mixin to make user object.
 
-    class UserMixin:
-    
-        @property
-        def is_active(self):
-            return True
-    
-        @property
-        def is_authenticated(self):
-            return True
-    
-        @property
-        def is_anonymous(self):
-            return False
-    
-        def get_id(self):
-            try:
-                return self.id
-            except AttributeError:
-                raise NotImplementedError('No `id` attribute. override `get_id` or set `id` attribute')
-    
-        def __eq__(self, other):
-            if isinstance(other, UserMixin):
-                return self.get_id() == other.get_id()
+```python
+class UserMixin:
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        try:
+            return self.id
+        except AttributeError:
+            raise NotImplementedError('No `id` attribute. override `get_id` or set `id` attribute')
+
+    def __eq__(self, other):
+        if isinstance(other, UserMixin):
+            return self.get_id() == other.get_id()
+        return NotImplemented
+
+    def __ne__(self, other):
+        equal = self.__eq__(other)
+        if equal is NotImplemented:
             return NotImplemented
-    
-        def __ne__(self, other):
-            equal = self.__eq__(other)
-            if equal is NotImplemented:
-                return NotImplemented
-            return not equal
-            
+        return not equal
+```
+
 ### AnonymousUserMixin
 The user mixin for not logged in users
 
-    class AnonymousUserMixin(UserMixin):
-        @property
-        def is_authenticated(self):
-            return False
-    
-        @property
-        def is_active(self):
-            return False
-    
-        @property
-        def is_anonymous(self):
-            return True
-    
-        def get_id(self):
-            return None
+```python
+class AnonymousUserMixin(UserMixin):
+    @property
+    def is_authenticated(self):
+        return False
+
+    @property
+    def is_active(self):
+        return False
+
+    @property
+    def is_anonymous(self):
+        return True
+
+    def get_id(self):
+        return None
+```
+
+### @method_decorator(decorator)
+This was made to set decorator to Class-Based-View class's method.
+
+You can use this just like below
+
+```python
+@api.route("/")
+class Index:
+    @method_decorator(lm.login_required)
+    def on_get(self, req, resp):
+        resp.text = "login-required area."
+```
+
+### @class_decorator(decorator, method=("on_get", "on_post", "on_delete", "on_put", "on_head", "on_request"), extra=())
+This was made to set decorator to Class-Based-View class.
+
+All method it's name is in `method` or `extra` will be decorated with `decorater`.
+
+You can use this just like below
+
+```python
+@api.route("/")
+@class_decorator(lm.login_required)
+class Index:
+    def on_get(self, req, resp):
+        resp.text = "login-required area."
+```
