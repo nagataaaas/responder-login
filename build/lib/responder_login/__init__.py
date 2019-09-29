@@ -13,7 +13,7 @@ from .config import (COOKIE_NAME, COOKIE_REMEMBER_ME, COOKIE_DURATION,
                      LOGIN_PROHIBITED_MESSAGE, LOGIN_PROHIBITED_ROUTE, DISABLE_RUNTIME_WARNING)
 from .login_manager import LoginManager
 from .mixins import (UserMixin, AnonymousUserMixin)
-
+from .decorators import (method_decorator, class_decorator)
 
 __all__ = [
     LoginManager.__name__,
@@ -32,5 +32,6 @@ __all__ = [
     "LoginManager",
     "UserMixin",
     "AnonymousUserMixin",
-
+    "method_decorator",
+    "class_decorator"
 ]

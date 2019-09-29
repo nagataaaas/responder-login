@@ -235,7 +235,7 @@ class Index:
 ### @class_decorator(decorator, method=("on_get", "on_post", "on_delete", "on_put", "on_head", "on_request"), extra=())
 This was made to set decorator to Class-Based-View class.
 
-All method it's name is in `method` or `extra` will be decorated with `decorater`.
+All method it's name is in `method` or `extra` will be decorated with `decorator`.
 
 You can use this just like below
 

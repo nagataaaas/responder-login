@@ -9,6 +9,7 @@ Responder_Login.egg-info/top_level.txt
 responder_login/__about__.py
 responder_login/__init__.py
 responder_login/config.py
+responder_login/decorators.py
 responder_login/default_callbacks.py
 responder_login/login_manager.py
 responder_login/mixins.py
