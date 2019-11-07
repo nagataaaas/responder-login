@@ -151,8 +151,8 @@ about account data, each value is below:
  ### LoginManager.is_fresh
  Return If the user logging in is logged in current session(not using Remember me). If logged in current session, returns `True`. If not, `False`. This returns `False` if user is not logged in.
  
- ### LoginManager.config
- - _COOKIE_NAME_ : The dictionary of cookie name. keys are`"ACCOUNT"` and `"IS_FRESH"`. Defaults to `{"ACCOUNT": "account", "IS_FRESH": "fresh" }`
+### LoginManager.config
+- _COOKIE_NAME_ : The dictionary of cookie name. keys are`"ACCOUNT"` and `"IS_FRESH"`. Defaults to `{"ACCOUNT": "account", "IS_FRESH": "fresh" }`
 - _COOKIE_REMEMBER_ME_ : The dictionary of setting whether each cookie is Remember-me. keys are`"ACCOUNT"` and `"IS_FRESH"`. Defaults to `{"ACCOUNT": True, "IS_FRESH": False }`
 - _COOKIE_DURATION_ : The amount of time before the cookie expires, as a `datetime.timedelta object`. Defaults to `datetime.timedelta(60)`
 - _COOKIE_SECURE_ : Restricts the "Remember Me" cookie's scope to https. Defaults to `False`
@@ -161,6 +161,33 @@ about account data, each value is below:
 - _LOGIN_REQUIRED_MESSAGE_ : The default message to display when users need to log in. Defaults to `"Please log in to access this page."`
 - _LOGIN_PROHIBITED_ROUTE_ : The route redirect to if user is logged in and tried to access endpoint decorated with `LoginManager.login_prohibited`. Defaults to `None`
 - _LOGIN_PROHIBITED_MESSAGE_ : The default message to display when users need to log out. Defaults to `"Please log out to access this page."`
+
+### LoginManager(req=None, resp=None)
+`req` and `resp` must be an instance of `responder.Request` and `responder.Response` or `None`.
+This has been added in order to solve problem that `req` or `resp` cannot be searched properly in `@api.background.task` and other specific situation.
+
+This returns deepcopy of self it's `LoginManager.set_req_resp` is already called.
+
+This is useful in the situation like below
+ 
+```python
+ 
+def some_func(req, resp):
+    @api.background.task
+    def inner_func():
+        heavy_func(lm(req, resp).current_user)
+    resp.content = "yay"
+
+``` 
+
+### LoginManager.set_req_resp(req=None, resp=None)
+`req` and `resp` must be an instance of `responder.Request` and `responder.Response` or `None`.
+This has been added to make `LoginManager()` callable.
+
+`LoginManager()` find `req` and `resp` by searching it in stack recursively in default.
+But if you call this and set `req` and `resp`, `LoginManager` will use it forever.
+
+This is nealy useless in most cases, but it's necessary to let `LoginManager()` become callable.
 
 ### UserMixin
 The simple mixin to make user object.

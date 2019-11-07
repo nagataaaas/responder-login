@@ -2,9 +2,9 @@ import inspect
 import warnings
 import asyncio
 import datetime
+import copy
 
 from functools import wraps
-
 
 from .mixins import AnonymousUserMixin
 from .config import (COOKIE_NAME, COOKIE_REMEMBER_ME, COOKIE_DURATION,
@@ -61,6 +61,9 @@ class LoginManager:
 
         self._api = None
 
+        self.req = None
+        self.resp = None
+
         self.config = {"COOKIE_NAME": COOKIE_NAME,
                        "COOKIE_REMEMBER_ME": COOKIE_REMEMBER_ME,
                        "COOKIE_DURATION": COOKIE_DURATION,
@@ -78,6 +81,20 @@ class LoginManager:
     def init_api(self, api):
         api.login_manager = self
         self._api = api
+
+    def set_req_resp(self, req=None, resp=None):
+        """
+        Set req and resp to self.req and self.resp.
+        This can be used to choose which req and resp to use implicitly.
+        :param req: instance of responder.Request or None
+        :param resp: instance of responder.Response or None
+        :return:
+        """
+        assert req is None or isinstance(req, Request)
+        assert resp is None or isinstance(resp, Response)
+
+        self.req = req
+        self.resp = resp
 
     def _unauthorized(self, *args, **kwargs):
         """
@@ -194,20 +211,20 @@ class LoginManager:
             return self.anonymous_user
 
     def login_user(self, account):
-        req, resp = get_data_from_stack()
+        req, resp = self._use_attributes_or_get_from_stack()
         account_id = account.get_id()
         self._set_cookie(account_id, "ACCOUNT", resp)
         self._set_cookie("1", "IS_FRESH", resp)
 
     def logout_user(self):
-        req, resp = get_data_from_stack()
+        req, resp = self._use_attributes_or_get_from_stack()
         self._set_cookie("", "ACCOUNT", resp, delete=True)
         self._set_cookie("", "IS_FRESH", resp, delete=True)
 
     @property
     def is_fresh(self):
         try:
-            req, resp = get_data_from_stack()
+            req, resp = self._use_attributes_or_get_from_stack()
             is_fresh = req.cookies.get(COOKIE_NAME["IS_FRESH"])
             if is_fresh:
                 return True
@@ -217,7 +234,7 @@ class LoginManager:
 
     @property
     def current_user(self):
-        req, resp = get_data_from_stack()
+        req, resp = self._use_attributes_or_get_from_stack()
         try:
             return self._load_user(req, resp)
         except (AttributeError, TypeError):
@@ -239,3 +256,20 @@ class LoginManager:
         httponly = COOKIE_HTTPONLY
         resp.set_cookie(key=key, value=value, expires=expires,
                         max_age=max_age, secure=secure, httponly=httponly)
+
+    def _use_attributes_or_get_from_stack(self):
+        if self.req or self.resp:
+            return self.req, self.resp
+        return get_data_from_stack()
+
+    def __call__(self, req=None, resp=None):
+        """
+        Return deepcopy of self that set req and resp to self.req and self.resp.
+        This can be used to choose which req and resp to use implicitly.
+        :param req: instance of responder.Request or None
+        :param resp: instance of responder.Response or None
+        :return:
+        """
+        new = copy.deepcopy(x=self, memo={id(self._api): self._api})
+        new.set_req_resp(req, resp)
+        return new
